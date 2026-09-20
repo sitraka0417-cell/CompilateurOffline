@@ -1,0 +1,38 @@
+name: Build CompilateurOffline (Windows)
+
+# Compile CompilateurOffline.exe dans le cloud GitHub (qui a Internet),
+# pour que vous n'ayez rien à installer localement. Le résultat
+# téléchargé fonctionne ensuite sur votre PC SANS Internet.
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Installer PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Compiler CompilateurOffline.exe (avec PyInstaller intégré)
+        run: |
+          python -m PyInstaller --noconfirm --windowed --name CompilateurOffline --collect-all PyInstaller main.py
+
+      - name: Publier le résultat
+        uses: actions/upload-artifact@v4
+        with:
+          name: CompilateurOffline-windows
+          path: dist/CompilateurOffline/
+
